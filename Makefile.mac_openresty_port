@@ -1,0 +1,36 @@
+# Default installation prefix
+PREFIX=/usr/local/openresty
+
+# System's libraries directory (where binary libraries are installed)
+LUA_LIBDIR=$(PREFIX)/lualib
+
+# System's lua directory (where Lua libraries are installed)
+LUA_DIR=$(PREFIX)/luajit/lib/lua/5.1
+
+LUAINC=$(PREFIX)/luajit/include/luajit-2.0
+LUALIB=$(PREFIX)/luajit/lib
+
+OSX_CFLAGS=-undefined dynamic_lookup
+CC=gcc
+# -fexceptions is necessary if your Lua was built with a C++ compiler and
+# uses exceptions internally; can be removed
+CFLAGS= -O3 -Wall $(INC) -shared -fPIC -fexceptions
+LDFLAGS=-shared -L$(LUALIB) $(OSX_CFLAGS)
+INC=-I$(LUAINC)
+
+OBJS=lua_cmsgpack.o
+
+all: cmsgpack.so
+
+install:
+	cp -f cmsgpack.so $(LUA_LIBDIR)
+
+uninstall:
+	rm -f $(LUA_LIBDIR)/cmsgpack.so
+
+cmsgpack.so: $(OBJS)
+	$(CC) -o $@ $(LDFLAGS) $(OBJS)
+
+clean:
+	rm -f $(OBJS) cmsgpack.so core core.* a.out
+
